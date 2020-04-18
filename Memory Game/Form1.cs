@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Memory_Game
 {
@@ -19,13 +21,12 @@ namespace Memory_Game
         Random rnd = new Random();
         PictureBox[] allP;
         
-
         private void Form1_Load(object sender, EventArgs e)
         {
-            allP = new PictureBox[16];
-            BuildArr(2);
+            allP = new PictureBox[8];
+            BuildArr();
             Mix();
-            showBoard(4, 4);
+            showBoard(2, 4);
         }
 
         public void Mix()
@@ -41,7 +42,7 @@ namespace Memory_Game
             }
         }
 
-        private void BuildArr(int size)
+        private void BuildArr()
         {
             for (int i = 0; i < allP.Length - 1; i += 2)
             {
@@ -49,7 +50,7 @@ namespace Memory_Game
                 {
                     allP[j] = new PictureBox();
                     allP[j].Image = Properties.Resources.lion;
-                    allP[j].BackgroundImage = (Image)Properties.Resources.ResourceManager.GetObject("wolf" + i);
+                    allP[j].BackgroundImage = (Image)Properties.Resources.ResourceManager.GetObject("wolf" + (i + 1 ));
                     allP[j].Tag = i + 1 + "";
                     allP[j].SizeMode = PictureBoxSizeMode.StretchImage;
                     allP[j].BorderStyle = BorderStyle.FixedSingle;
@@ -74,20 +75,11 @@ namespace Memory_Game
                 x = 100;
 
             }
-
         }
 
-        public bool Check(PictureBox p1, PictureBox p2)
-        {
-            if (p1.Tag == p2.Tag)
-            {
-                return true;
-            }
-            return false;
-        }
+        
 
-        int p = 0;
-        PictureBox[] temp = new PictureBox[2];
+        
 
         public static void FlipPic(PictureBox picture)
         {
@@ -97,34 +89,48 @@ namespace Memory_Game
             picture.BackgroundImage = img;
         }
 
+        public bool Check(PictureBox[] arr)
+        {
+            if (arr[0].Tag.Equals(arr[1].Tag))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        int p = 0;
+        PictureBox[] temp = new PictureBox[2];
+
         private void allP_Click(object sender, EventArgs e)
         {
             PictureBox ClickedPic = (PictureBox)sender;
 
-            FlipPic(ClickedPic);
-            
-            if (p < 2)
+            Image img;
+            img = ClickedPic.Image;
+            ClickedPic.Image = ClickedPic.BackgroundImage;
+            ClickedPic.BackgroundImage = img;
+
+            if (p == 2)
             {
-                temp[p] = ClickedPic;
-                p++;
-            }
-            else 
                 p = 0;
-
-            if (temp[1] != null)
-            {
-                if (!temp[0].Tag.Equals(temp[1].Tag))        //Check if the Pictures match each other
-                {
-                    FlipPic(temp[1]);
-                    FlipPic(temp[0]);
-                }
-
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < temp.Length; i++)
                 {
                     temp[i] = null;
                 }
             }
+
+            temp[p] = ClickedPic;
+            p++;
+
+            if (temp[1] != null)
+            { 
+                if (!Check(temp))
+                {
+                    FlipPic(temp[0]);
+                    FlipPic(temp[1]);
+                }
+            }
         }
-    }
+    }//*****
     
 }
