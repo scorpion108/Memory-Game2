@@ -12,21 +12,23 @@ using System.Diagnostics;
 
 namespace Memory_Game
 {
-    public partial class Form1 : Form
+    public partial class frm1 : Form
     {
-        public Form1()
+        public frm1()
         {
             InitializeComponent();
         }
         Random rnd = new Random();
         PictureBox[] allP;
+        int count = 0;
+        int SCount = 0;
         
         private void Form1_Load(object sender, EventArgs e)
         {
-            allP = new PictureBox[8];
+            allP = new PictureBox[16];
             BuildArr();
             Mix();
-            showBoard(2, 4);
+            showBoard(4, 4);
         }
 
         public void Mix()
@@ -54,7 +56,7 @@ namespace Memory_Game
                     allP[j].Tag = i + 1 + "";
                     allP[j].SizeMode = PictureBoxSizeMode.StretchImage;
                     allP[j].BorderStyle = BorderStyle.FixedSingle;
-                    allP[j].Size = new Size(80, 80);
+                    allP[j].Size = new Size(100, 100);
                     allP[j].Click += allP_Click;
                 }
             }
@@ -62,16 +64,16 @@ namespace Memory_Game
 
         private void showBoard(int row, int col)
         {
-            int x = 100, y = 100, place = 0;
+            int x = 100, y = 150, place = 0;
             for (int i = 0; i < row; i++)
             {
                 for (int j = 0; j < col; j++)
                 {
                     allP[place].Location = new Point(x, y);
-                    x += 85;
+                    x += 105;
                     Controls.Add(allP[place++]);
                 }
-                y += 85;
+                y += 105;
                 x = 100;
 
             }
@@ -103,34 +105,82 @@ namespace Memory_Game
 
         private void allP_Click(object sender, EventArgs e)
         {
-            PictureBox ClickedPic = (PictureBox)sender;
-
-            Image img;
-            img = ClickedPic.Image;
-            ClickedPic.Image = ClickedPic.BackgroundImage;
-            ClickedPic.BackgroundImage = img;
-
-            if (p == 2)
+            if (!loading.Enabled)
             {
-                p = 0;
-                for (int i = 0; i < temp.Length; i++)
+                PictureBox ClickedPic = (PictureBox)sender;
+
+
+                FlipPic(ClickedPic);
+
+                if (p == 2)
                 {
-                    temp[i] = null;
+                    p = 0;
+                    for (int i = 0; i < temp.Length; i++)
+                    {
+                        temp[i] = null;
+                    }
                 }
-            }
 
-            temp[p] = ClickedPic;
-            p++;
+                temp[p] = ClickedPic;
+                p++;
 
-            if (temp[1] != null)
-            { 
-                if (!Check(temp))
+                if (temp[1] != null)
                 {
-                    FlipPic(temp[0]);
-                    FlipPic(temp[1]);
+                    if (!Check(temp))
+                    {
+                        count = 3;
+                        loading.Enabled = true;
+                    }
+                    else
+                    {
+                        SCount++;
+                        lblScore.Text = "Score: "+ SCount + "";
+                        temp[0].Enabled = false;
+                        temp[1].Enabled = false;
+                    }
                 }
             }
         }
-    }//*****
+
+       
+        private void loading_Tick(object sender, EventArgs e)
+        {
+            count--;
+            if (count == -1)
+            {
+                FlipPic(temp[0]);
+                FlipPic(temp[1]);
+                loading.Enabled = false;
+            }
+           
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+            
+        }
+        int Tcount = 60;
+        private void T_Tick(object sender, EventArgs e)
+        {
+            if(SCount == allP.Length / 2)
+                {
+                T.Enabled = false;
+                MessageBox.Show("You have won!!!");
+                }
+            lblTime.Text = "Time: " +(Tcount - 1) + "";
+            if (Tcount == 0)
+            {
+                MessageBox.Show("Times up");
+                T.Enabled = false;
+            }
+        Tcount--;
+        }
+    }
     
 }
